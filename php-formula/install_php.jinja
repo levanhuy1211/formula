@@ -44,7 +44,7 @@ create forder www:
 custom_php_config:
   file.managed:
     - name: /etc/php-fpm.d/www.conf
-    - source: salt://php/www.conf
+    - source: salt://conf/www.conf
     - require:
       - pkg: nginx.packages
 public:

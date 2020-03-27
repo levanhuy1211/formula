@@ -1,23 +1,8 @@
 {% set nginx = salt['grains.filter_by']({
-        'Debian': {
-            'package': 'nginx',
-            'config_file': '/etc/nginx/conf.d/test.conf',
-            'service': 'nginx',
-            'webuser': 'www-data',
-	    'source': 'salt://nginx/test.ubuntu.conf',
-            'direct': '/var/www/test.vn',
-            'log': '/var/log/nginx/test.vn',
-            'file_default':'salt://ubuntu/index.php',
-        },
+        'Debian': { 
+            'webuser': 'www-data' },
         'RedHat': {
-            'package': 'nginx',
-            'config_file': '/etc/nginx/conf.d/test.conf',
-            'service': 'nginx',
             'webuser': 'nginx',
-	    'source':'salt://nginx/test.centos.conf',
-	    'direct': '/var/www/test.vn',
-	    'log': '/var/log/nginx/test.vn',
-	    'file_default':'salt://centos/index.php',
         },
   }, merge=salt['pillar.get']('nginx:lookup')) %}
 
