@@ -1,0 +1,62 @@
+{% if grains['os'] == 'Ubuntu' %}
+{% set repo_name = salt['pillar.get']('php:repo_name', 'ondrej/php') %}
+php_ppa:
+  pkgrepo.managed:
+    - ppa: {{ repo_name }}
+nginx.packages:
+  pkg.installed:
+    - pkgs:
+      - nginx
+      - php7.3-fpm
+      - php7.3-cli
+      - php7.3-curl
+{% elif grains['os'] == 'CentOS' %}
+packages:
+  pkg.installed:
+    - pkgs:
+      - epel-release
+      - yum-utils
+remi:
+  pkg.installed:
+    - sources:
+      - remi-release: http://rpms.remirepo.net/enterprise/remi-release-7.rpm
+    - require:
+      - pkg: packages
+enable_optional_rpms:
+  file.replace:
+    - name: /etc/yum.repos.d/remi-php73.repo
+    - pattern: '^enabled=[0,1]'
+    - repl: 'enabled=1'
+    - require:
+      - pkg: remi
+nginx.packages:
+  pkg.installed:
+    - pkgs:
+      - nginx
+      - php-fpm
+      - php-cli
+create forder www:
+  file.directory:
+    - user: root
+    - name: /var/www
+    - group: root
+    - mode: 755
+custom_php_config:
+  file.managed:
+    - name: /etc/php-fpm.d/www.conf
+    - source: salt://php/www.conf
+    - require:
+      - pkg: nginx.packages
+public:
+  firewalld.present:
+    - name: public
+    - ports:
+      - 80/tcp
+      - 443/tcp
+php-fpm_service:
+  service.running:
+    - name: php-fpm
+    - enable: True
+    - require:
+      - pkg: nginx.packages
+{% endif %}
